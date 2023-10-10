@@ -374,11 +374,11 @@ try {
     const error = new Error ("게시물 수정 실패");
     error.statusCode = 400;
     error.code="Modify Failed"
-  throw error;
+
   return res.status(200).json({message:"POST UPDATED 수정 완료"})
   } 
   catch(error){
   console.log(error);
   return res.status(400).json(message: "게시물 수정이 되지 않았습니다");
   }
-})
+});
