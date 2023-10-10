@@ -272,15 +272,15 @@ try{
   console.log(error);
   return res.status(400).json({message:"FAILED"})
   }
-} //code 성공, error.code 실패 or message:성공, message:실패 
+} )//code 성공, error.code 실패 or message:성공, message:실패 
 // image 가져올 때 user id 
 
 
 
 
 // C. 게시물 삭제 Delete (create랑 비슷한 로직)
-app.delete("/deletepost",async (req, res) => {
-  try{
+app.delete("/deletepost" , async (req, res) => {
+    try{
     //1. 토큰 검증 (회원인지)
     // 회원만 게시물 작성 가능 (header에서 '토큰 확인'=req.headers.authorization)
     const token = req.headers.authorization; 
@@ -293,9 +293,11 @@ app.delete("/deletepost",async (req, res) => {
     // '토큰 검증'= jwt.verify함수
     // 첫 인자 token, 두번째 인자 토큰 검증 시크릿키 -> 검증 성공 시 토큰 해독한 내용 return -> 값을 변수 id에 할당 
     const {id} = jwt.verify(token,process.env.TYPEORM_JWT);
+    // 여기 id는 토큰에 담긴 Id 
          //token변수 선언된 'req.headers.authorization의 id를 가져온다. 
     //토큰 검증 성공 시, 게시물 생성 함수 
     
+    const postId = req.params // 게시물 번호 postman의 post number로 
     //2. 작성한 게시물의 주인이 맞는지 (아무나꺼 건드리면 안 되니) -> if 중복 확인 
     // body에서 content를 가져와야 함 
     const existingUser = await myDataSource.query(`
@@ -315,11 +317,9 @@ app.delete("/deletepost",async (req, res) => {
         // user id, post id, createddate select from DB 
     const deletePost = await myDataSource.query(` 
       DELETE 
-      threads.user.id, 
-      threads.id,
-      threads.created_at
       FROM threads
-      `)//threads 테이블의 userd_id (fk), post_id(pk), created_at
+      where users.id=${id} and post.id= ${postId}
+      `)//threads 중에 어떤 user의 어떤 포스트 (이것만 하면 되니, 칼럼이름 표시 안 해도 됨)
     console.log(deletePost) //deltePost 변수 사용해주기 위해 (회색표시 -> 흰색)
     return res.status(200).json({message:"DELETE POST 게시물 삭제"}) 
   } catch(error){
@@ -345,16 +345,18 @@ try {
     // '토큰 검증'= jwt.verify함수
     // 첫 인자 token, 두번째 인자 토큰 검증 시크릿키 -> 검증 성공 시 토큰 해독한 내용 return -> 값을 변수 id에 할당 
     const {id} = jwt.verify(token,process.env.TYPEORM_JWT);
-         //token변수 선언된 'req.headers.authorization의 id를 가져온다. 
+    // token 안의 id
+    //token변수 선언된 'req.headers.authorization의 id를 가져온다. 
     //토큰 검증 성공 시, 게시물 생성 함수 
     
     //req.body에서 content를 가져온다
-      const {content} = req.body 
+      const content = req.body.content
+      // const {content} = req.body 
       console.log (content) //content 변수 사용해주기 위해 (회색표시 -> 흰색)
 
 
   //2. 작성한 게시물의 주인이 맞는지 (아무나꺼 건드리면 안 되니) if 중복 비교 
-  const updatingUser = await myDataSource.query(`SELECT id, email, password FROM users WHERE email='${email}'
+  const updatingUser = await myDataSource.query(`SELECT * FROM threads WHERE user_id='${id}'
   `);
   console.log("updatingUser:", updatingUser);
 
@@ -367,8 +369,7 @@ try {
   //3. 게시물 수정
     // userID, postId, createdDate select from DB 
     const updatingPost = await myDataSource.query(`
-    UPDATE threads SET content = "Modified Title"
-    WHERE id= ? ; 
+
     `)
     console.log(updatingPost)
     const error = new Error ("게시물 수정 실패");
