@@ -379,11 +379,6 @@ try {
   } 
   catch(error){
   console.log(error);
-  return res.status(400).json(error);
+  return res.status(400).json(message: "게시물 수정이 되지 않았습니다");
   }
 })
-
-return res.status(200).json({message:"게시물 수정이 완료 되었습니다"})
-} catch (error) {
-  return res.status(400).json({message: "게시물 수정이 되지 않았습니다"})
-}
