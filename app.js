@@ -206,7 +206,7 @@ myDataSource.initialize().then(() => {
 });
 
 
-//A. 게시물 생성 Create
+//게시물 생성 Create
 app.post ("/createpost", async (req, res) => {
 try {
   // 1. 회원만 게시물 작성 가능 (header에서 '토큰 확인'=req.headers.authorization)
@@ -243,17 +243,17 @@ try {
   console.log("new Post ID:", newPost.id);
   console.log("new Post Content:", newPost.content);
 
-  // 성공 시 반환 
+  // 5. 성공 시 반환 
   return res.status(200).json({message: "POST CREATED 게시물 생성 완료"}); 
   } 
-   // if 에서 fasle면 throw error- catch error
+   //* if 에서 fasle면 throw error- catch error
   catch(error){
   console.log(error);
   return res.status(400).json({message:"FAILED"});
 }
 });
 
-// B. 게시물 목록 조회 Read 
+//게시물 목록 조회 Read 
 app.get("/readpost", async (req, res) => {
 try{
   console.log(req.body) //req 변수 사용해주기 위해 (회색표시)
@@ -263,7 +263,7 @@ try{
     threads.content, 
     threads.created_at AS createdAt
     FROM threads
-    `); //threads 테이블의 id , content, createe_at 
+    `); //* threads 테이블의 id , content, create_at 
   console.log(getPost)
   return res.status(200).json({message:"POST LIST 게시물 목록 조회"}) 
   } 
@@ -272,17 +272,17 @@ try{
   console.log(error);
   return res.status(400).json({message:"FAILED"})
   }
-} )//code 성공, error.code 실패 or message:성공, message:실패 
+} )//* code 성공, error.code 실패 or message:성공, message:실패 
 // image 가져올 때 user id 
 
 
 
 
-// C. 게시물 삭제 Delete (create랑 비슷한 로직)
+//게시물 삭제 Delete (create랑 비슷한 로직)
 app.delete("/deletepost" , async (req, res) => {
     try{
     //1. 토큰 검증 (회원인지)
-    // 회원만 게시물 작성 가능 (header에서 '토큰 확인'=req.headers.authorization)
+    //* 회원만 게시물 작성 가능 (header에서 '토큰 확인'=req.headers.authorization)
     const token = req.headers.authorization; 
     if(!token){
       const error = new Error ("TOKEN_ERROR 게시물 삭제 권한이 없습니다");
@@ -290,8 +290,8 @@ app.delete("/deletepost" , async (req, res) => {
       error.code = "TOKEN_ERROR"
       throw error;
     }
-    // '토큰 검증'= jwt.verify함수
-    // 첫 인자 token, 두번째 인자 토큰 검증 시크릿키 -> 검증 성공 시 토큰 해독한 내용 return -> 값을 변수 id에 할당 
+    //* '토큰 검증'= jwt.verify함수
+    //* 첫 인자 token, 두번째 인자 토큰 검증 시크릿키 -> 검증 성공 시 토큰 해독한 내용 return -> 값을 변수 id에 할당 
     const {id} = jwt.verify(token,process.env.TYPEORM_JWT);
     // 여기 id는 토큰에 담긴 Id 
          //token변수 선언된 'req.headers.authorization의 id를 가져온다. 
@@ -310,31 +310,31 @@ app.delete("/deletepost" , async (req, res) => {
       error.statusCode = 400;
       throw error;
     }
-    //3. 게시물 삭제 
+    //게시물 삭제 
     const {content} = req.body   //회색으로 뜨는 건, 변수 사용이 안 돼서, 아래에서 쓰이지 않아서 -> console.log만 찍어도 흰색 됨
     console.log(content)
 
-        // user id, post id, createddate select from DB 
+        //* user id, post id, createddate select from DB 
     const deletePost = await myDataSource.query(` 
       DELETE 
       FROM threads
       where users.id=${id} and post.id= ${postId}
-      `)//threads 중에 어떤 user의 어떤 포스트 (이것만 하면 되니, 칼럼이름 표시 안 해도 됨)
+      `)//* threads 중에 어떤 user의 어떤 포스트 (이것만 하면 되니, 칼럼이름 표시 안 해도 됨)
     console.log(deletePost) //deltePost 변수 사용해주기 위해 (회색표시 -> 흰색)
     return res.status(200).json({message:"DELETE POST 게시물 삭제"}) 
   } catch(error){
     console.log(error);
     return res.status(400).json({message:"FAILED"});
-    // return res.status(400).json(error);  -> 메세지 매번 던지기 힘드니, error라는 공용함수 사용 시 
+    //* return res.status(400).json(error);  -> 메세지 매번 던지기 힘드니, error라는 공용함수 사용 시 
   };
 })
 
 
-// D. 게시물 수정 Update 
+//게시물 수정 Update 
 app.put("/updatepost", async (req, res) => {
 try {
 // 1. 토큰 확인, 검증 (회원인지)
-    // 회원만 게시물 작성 가능 (header에서 '토큰 확인'=req.headers.authorization)
+    //* 회원만 게시물 작성 가능 (header에서 '토큰 확인'=req.headers.authorization)
     const token = req.headers.authorization; 
     if(!token){
       const error = new Error ("TOKEN_ERROR 게시물 수정 권한이 없습니다");
@@ -342,8 +342,8 @@ try {
       error.code = "TOKEN_ERROR"
       throw error;
     }
-    // '토큰 검증'= jwt.verify함수
-    // 첫 인자 token, 두번째 인자 토큰 검증 시크릿키 -> 검증 성공 시 토큰 해독한 내용 return -> 값을 변수 id에 할당 
+    //* '토큰 검증'= jwt.verify함수
+    //* 첫 인자 token, 두번째 인자 토큰 검증 시크릿키 -> 검증 성공 시 토큰 해독한 내용 return -> 값을 변수 id에 할당 
     const {id} = jwt.verify(token,process.env.TYPEORM_JWT);
     // token 안의 id
     //token변수 선언된 'req.headers.authorization의 id를 가져온다. 
@@ -380,6 +380,6 @@ try {
   } 
   catch(error){
   console.log(error);
-  return res.status(400).json(message: "게시물 수정이 되지 않았습니다");
+  return res.status(400).json({message: "게시물 수정이 되지 않았습니다"});
   }
 });
