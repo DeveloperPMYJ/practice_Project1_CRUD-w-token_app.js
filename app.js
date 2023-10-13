@@ -6,7 +6,7 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-const { DataSource, UpdateDateColumn } = require("typeorm");
+const { DataSource } = require("typeorm");
 
 const myDataSource = new DataSource({
   type: process.env.DB_CONNECTION,
@@ -188,11 +188,13 @@ app.post("/logIn", async (req, res) => {
 });
 
 // 서버 구동 
+const server = http.createServer(app);
+require("dotenv").config();
 const portNumber = process.env.PORT || 8000;
 
 const start = async () => {
   try {
-    await server.listen(portNumber);
+    server.listen(portNumber);
     console.log(`Server is listening on ${portNumber}`);
   } catch (err) {
     console.error(err);
