@@ -257,12 +257,8 @@ app.get("/readpost", async (req, res) => {
   try {
     console.log(req.body); //req 변수 사용해주기 위해 (회색표시)
     const getPost = await myDataSource.query(`
-    SELECT  
-    threads.id AS postId, 
-    threads.content, 
-    threads.created_at AS createdAt
-    FROM threads
-    `); //* threads 테이블의 id , content, create_at
+    SELECT * FROM threads 
+    where threads.id = ${postId}`); // post id 로 하나의 post 가져올 때, 전체 목록이면 필요 없음 select * from 하면 되니
     console.log(getPost);
     return res.status(200).json({ message: "POST LIST 게시물 목록 조회" });
   } catch (error) {
@@ -312,7 +308,7 @@ app.delete("/deletepost", async (req, res) => {
     const deletePost = await myDataSource.query(` 
       DELETE 
       FROM threads
-      where users.id=${id} and post.id= ${postId}
+      where users.id=${id} and threads.id= ${postId}
       `); //* threads 중에 어떤 user의 어떤 포스트 (이것만 하면 되니, 칼럼이름 표시 안 해도 됨)
     console.log(deletePost); //deltePost 변수 사용해주기 위해 (회색표시 -> 흰색)
     return res.status(200).json({ message: "DELETE POST 게시물 삭제" });
