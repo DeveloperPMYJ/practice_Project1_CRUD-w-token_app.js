@@ -225,6 +225,7 @@ app.post("/createpost", async (req, res) => {
 
     // 3. 토큰 검증 성공 시, 게시물 생성 함수
     const { content } = req.body;
+    const { id } = req.body
     // 게시물 공백 허용하지 않음, 한 글자라도 있어야 함
     if (content.length === 0) {
       const error = new Error("CONTENT_TOO_SHORT 1글자 이상 적어주세요");
@@ -243,7 +244,7 @@ app.post("/createpost", async (req, res) => {
       )
      `);
     
-     console.log("new Post ID:", newPost.id);
+     console.log("new Post ID:", newPost.user_id);
     console.log("new Post Content:", newPost.content);
 
     // 5. 성공 시 반환
@@ -259,10 +260,15 @@ app.post("/createpost", async (req, res) => {
 app.get("/readpost", async (req, res) => {
   try {
     console.log(req.body); //req 변수 사용해주기 위해 (회색표시)
+    const { postId } = req.body;
     const getPost = await myDataSource.query(`
-    SELECT * FROM threads 
-    where threads.id = ${postId}`); // post id 로 하나의 post 가져올 때, 전체 목록이면 필요 없음 select * from 하면 되니
+    SELECT *
+    FROM threads 
+    WHERE 
+    threads.id = ${postId}`);  // 기획하는대로, 내가 쿼리문에 조건을 더 달아주면 됨 (추가 조건)
+    
     console.log(getPost);
+
     return res.status(200).json({ message: "POST LIST 게시물 목록 조회" });
   } catch (error) {
     console.log(error);
@@ -271,11 +277,12 @@ app.get("/readpost", async (req, res) => {
 }); //* code 성공, error.code 실패 or message:성공, message:실패
 // image 가져올 때 user id
 
+
 //게시물 삭제 Delete (create랑 비슷한 로직)
 app.delete("/deletepost", async (req, res) => {
   try {
-  
-    /*
+  console.log(1)
+/*
     //1. 토큰 검증 (회원인지)
     //* 회원만 게시물 작성 가능 (header에서 '토큰 확인'=req.headers.authorization)
     const token = req.headers.authorization;
@@ -291,10 +298,12 @@ app.delete("/deletepost", async (req, res) => {
     // 여기 id는 토큰에 담긴 Id
     //token변수 선언된 'req.headers.authorization의 id를 가져온다.
 
-    */
+*/
 
     //토큰 검증 성공 시, 게시물 생성 함수
-    const postId = req.params; // 게시물 번호 postman의 post number로
+    const postId = req.body; // 게시물 번호 postman의 post number로
+
+/*
     //2. 작성한 게시물의 주인이 맞는지 (아무나꺼 건드리면 안 되니) -> if 중복 확인
     // body에서 content를 가져와야 함
     const existingUser = await myDataSource.query(`
@@ -307,7 +316,12 @@ app.delete("/deletepost", async (req, res) => {
       error.statusCode = 400;
       throw error;
     }
+
+*/
+
     //게시물 삭제
+    const { id } = req.body
+    const { threadsId } = req.body
     const { content } = req.body; //회색으로 뜨는 건, 변수 사용이 안 돼서, 아래에서 쓰이지 않아서 -> console.log만 찍어도 흰색 됨
     console.log(content);
 
@@ -315,13 +329,14 @@ app.delete("/deletepost", async (req, res) => {
     const deletePost = await myDataSource.query(` 
       DELETE 
       FROM threads
-      where users.id=${id} and threads.id= ${postId}
+      WHERE user_id=${id} and threads.id= ${threadsId}
       `); //* threads 중에 어떤 user의 어떤 포스트 (이것만 하면 되니, 칼럼이름 표시 안 해도 됨)
     console.log(deletePost); //deltePost 변수 사용해주기 위해 (회색표시 -> 흰색)
-    return res.status(200).json({ message: "DELETE POST 게시물 삭제" });
-  } catch (error) {
+  return res.status(200).json({ message: "DELETE POST 게시물 삭제" });
+  }
+  catch (error) {
     console.log(error);
-    return res.status(400).json({ message: "FAILED" });
+  return res.status(400).json({ message: "FAILED" });
     //* return res.status(400).json(error);  -> 메세지 매번 던지기 힘드니, error라는 공용함수 사용 시
   }
 });
@@ -329,7 +344,7 @@ app.delete("/deletepost", async (req, res) => {
 //게시물 수정 Update
 app.put("/updatepost", async (req, res) => {
   try {
-    /*
+/*
 
     // 1. 토큰 확인, 검증 (회원인지)
     //* 회원만 게시물 작성 가능 (header에서 '토큰 확인'=req.headers.authorization)
@@ -346,39 +361,37 @@ app.put("/updatepost", async (req, res) => {
     // token 안의 id
     //token변수 선언된 'req.headers.authorization의 id를 가져온다.
 
-    */
+*/
 
     //토큰 검증 성공 시, 게시물 생성 함수
     //req.body에서 content를 가져온다
-    const content = req.body.content;
-    // const {content} = req.body
+    const { id } = req.body
+    const {content} = req.body
+
     console.log(content); //content 변수 사용해주기 위해 (회색표시 -> 흰색)
 
-    //2. 작성한 게시물의 주인이 맞는지 (아무나꺼 건드리면 안 되니) if 중복 비교
-    const updatingUser =
-      await myDataSource.query(`SELECT * FROM threads WHERE user_id='${id}'
+  
+    const updatingPostData = await myDataSource.query(`
+    UPDATE  
+      userId, threadsId, content, creatdAt 
+    SET 
+      threads 
+    WHERE email='${email}'
   `);
-    console.log("updatingUser:", updatingUser);
+    console.log("updatingPostData:", updatingPostData);
 
-    if (updatingUser.length === 0) {
+    if (updatingPostData.length === 0) {
       const error = new Error("수정 권한이 없습니다");
       error.statusCode = 400;
-      throw error;
+    throw error;
     }
 
-    //3. 게시물 수정
-    // userID, postId, createdDate select from DB
-    const updatingPost = await myDataSource.query(`
+    console.log(updatingPostData);
 
-    `);
-    console.log(updatingPost);
-    const error = new Error("게시물 수정 실패");
-    error.statusCode = 400;
-    error.code = "Modify Failed";
-
-    return res.status(200).json({ message: "POST UPDATED 수정 완료" });
+    return res.status(200).json({ message: "POST UPDATED 수정 완료" 
+  });
   } catch (error) {
-    console.log(error);
-    return res.status(400).json({ message: "게시물 수정이 되지 않았습니다" });
+       console.log(error);
+      return res.status(400).json({ message: "게시물 수정이 되지 않았습니다" });
   }
 });
