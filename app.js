@@ -291,6 +291,7 @@ app.delete("/deletepost", async (req, res) => {
     console.log(1);
     //1. 토큰 검증 (회원인지):  회원만 게시물 작성 가능 (header에서 '토큰 확인'=req.headers.authorization)
     const token = req.headers.authorization;
+
     if (!token) {
       const error = new Error("TOKEN_ERROR 게시물 삭제 권한이 없습니다");
       error.statusCode = 400;
@@ -345,7 +346,7 @@ app.put("/updatepost", async (req, res) => {
       const error = new Error("TOKEN_ERROR 게시물 수정 권한이 없습니다");
       error.statusCode = 400;
       error.code = "TOKEN_ERROR";
-      throw error;
+    throw error;
     }
     console.log(token);
 
@@ -359,7 +360,7 @@ app.put("/updatepost", async (req, res) => {
       const error = new Error ("verify_token_ERROR 게시물 작성 권한이 없습니다");
       error.statusCode = 400;
       error.code = "verify_token_ERROR";
-      throw error;
+    throw error;
     }
 
   //const { userId } = req.body;  -> token 있으면 userId 필요 없음 
@@ -381,7 +382,7 @@ app.put("/updatepost", async (req, res) => {
     if (updatingPostData.length === 0) {
       const error = new Error("수정 권한이 없습니다");
       error.statusCode = 400;
-      throw error;
+    throw error;
     }
 
     console.log(updatingPostData);
