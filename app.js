@@ -237,8 +237,10 @@ app.post("/createpost", async (req, res) => {
     // 4. 게시물 내용 DB에 저장
     const newPost = await myDataSource.query(`
       INSERT INTO threads (
-        user_id, content
-      )VALUES (
+        user_id, 
+        content
+      )
+      VALUES (
         '${id}',
         '${content}'
       )
@@ -260,12 +262,15 @@ app.post("/createpost", async (req, res) => {
 app.get("/readpost", async (req, res) => {
   try {
     console.log(req.body); //req 변수 사용해주기 위해 (회색표시)
+
     const { postId } = req.body;
+
     const getPost = await myDataSource.query(`
-    SELECT *
-    FROM threads 
-    WHERE 
-    threads.id = ${postId}`);  // 기획하는대로, 내가 쿼리문에 조건을 더 달아주면 됨 (추가 조건)
+    SELECT
+     *
+    FROM 
+      threads 
+    WHERE threads.id = ${postId}`);  // 기획하는대로, 내가 쿼리문에 조건을 더 달아주면 됨 (추가 조건)
     
     console.log(getPost);
 
@@ -298,12 +303,7 @@ app.delete("/deletepost", async (req, res) => {
     // 여기 id는 토큰에 담긴 Id
     //token변수 선언된 'req.headers.authorization의 id를 가져온다.
 
-*/
 
-    //토큰 검증 성공 시, 게시물 생성 함수
-    const postId = req.body; // 게시물 번호 postman의 post number로
-
-/*
     //2. 작성한 게시물의 주인이 맞는지 (아무나꺼 건드리면 안 되니) -> if 중복 확인
     // body에서 content를 가져와야 함
     const existingUser = await myDataSource.query(`
@@ -320,16 +320,15 @@ app.delete("/deletepost", async (req, res) => {
 */
 
     //게시물 삭제
-    const { id } = req.body
+    const { userId } = req.body
     const { threadsId } = req.body
-    const { content } = req.body; //회색으로 뜨는 건, 변수 사용이 안 돼서, 아래에서 쓰이지 않아서 -> console.log만 찍어도 흰색 됨
-    console.log(content);
+//회색으로 뜨는 건, 변수 사용이 안 돼서, 아래에서 쓰이지 않아서 -> console.log만 찍어도 흰색 됨
 
     //* user id, post id, createddate select from DB
     const deletePost = await myDataSource.query(` 
-      DELETE 
-      FROM threads
-      WHERE user_id=${id} and threads.id= ${threadsId}
+      DELETE FROM
+        threads
+      WHERE user_id=${userId} and threads.id= ${threadsId}
       `); //* threads 중에 어떤 user의 어떤 포스트 (이것만 하면 되니, 칼럼이름 표시 안 해도 됨)
     console.log(deletePost); //deltePost 변수 사용해주기 위해 (회색표시 -> 흰색)
   return res.status(200).json({ message: "DELETE POST 게시물 삭제" });
@@ -364,20 +363,21 @@ app.put("/updatepost", async (req, res) => {
 */
 
     //토큰 검증 성공 시, 게시물 생성 함수
-    //req.body에서 content를 가져온다
-    const { id } = req.body
-    const {content} = req.body
+    const { userId } = req.body
+    const { threadsId} = req.body
+    const { newContent } = req.body
 
-    console.log(content); //content 변수 사용해주기 위해 (회색표시 -> 흰색)
+    console.log(userId);
+    console.log(threadsId); //content 변수 사용해주기 위해 (회색표시 -> 흰색)
 
   
     const updatingPostData = await myDataSource.query(`
-    UPDATE  
-      userId, threadsId, content, creatdAt 
+    UPDATE threads 
     SET 
-      threads 
-    WHERE email='${email}'
+      content = '${newContent}', updated_at = NOW ()
+    WHERE user_id= ${userId} AND threads.id=${threadsId};
   `);
+
     console.log("updatingPostData:", updatingPostData);
 
     if (updatingPostData.length === 0) {
@@ -391,7 +391,7 @@ app.put("/updatepost", async (req, res) => {
     return res.status(200).json({ message: "POST UPDATED 수정 완료" 
   });
   } catch (error) {
-       console.log(error);
-      return res.status(400).json({ message: "게시물 수정이 되지 않았습니다" });
+      console.log(error);
+    return res.status(400).json({ message: "게시물 수정이 되지 않았습니다" });
   }
 });
