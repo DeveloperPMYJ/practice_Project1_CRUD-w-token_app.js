@@ -204,7 +204,7 @@ app.post("/createpost", async (req, res) => {
   try {
     console.log(1);
     // 1. 회원만 게시물 작성 가능 (header에서 '토큰 확인'=req.headers.authorization)
-    const token = req.headers.authorization;
+  /*  const token = req.headers.authorization;
     if (!token) {
       const error = new Error("TOKEN_ERROR 게시물 작성 권한이 없습니다");
       error.statusCode = 400;
@@ -221,6 +221,8 @@ app.post("/createpost", async (req, res) => {
       console.error('JWT verification failed:', err.message);
     // 오류 처리 로직 추가
     }
+    */
+
     // 3. 토큰 검증 성공 시, 게시물 생성 함수
     const { content } = req.body;
     // 게시물 공백 허용하지 않음, 한 글자라도 있어야 함
@@ -233,19 +235,20 @@ app.post("/createpost", async (req, res) => {
 
     // 4. 게시물 내용 DB에 저장
     const newPost = await myDataSource.query(`
-  INSERT INTO threads (
-    user_id, content
-  )VALUES (
-    '${id}',
-    '${content}'
-  )
-  `);
-    console.log("new Post ID:", newPost.id);
+      INSERT INTO threads (
+        user_id, content
+      )VALUES (
+        '${id}',
+        '${content}'
+      )
+     `);
+    
+     console.log("new Post ID:", newPost.id);
     console.log("new Post Content:", newPost.content);
 
     // 5. 성공 시 반환
     return res.status(200).json({ message: "POST CREATED 게시물 생성 완료" });
-  } catch (error) {
+     } catch (error) {
     //* if 에서 fasle면 throw error- catch error
     console.log(error);
     return res.status(400).json({ message: "FAILED" });
@@ -271,6 +274,8 @@ app.get("/readpost", async (req, res) => {
 //게시물 삭제 Delete (create랑 비슷한 로직)
 app.delete("/deletepost", async (req, res) => {
   try {
+  
+    /*
     //1. 토큰 검증 (회원인지)
     //* 회원만 게시물 작성 가능 (header에서 '토큰 확인'=req.headers.authorization)
     const token = req.headers.authorization;
@@ -285,8 +290,10 @@ app.delete("/deletepost", async (req, res) => {
     const { id } = jwt.verify(token, process.env.TYPEORM_JWT);
     // 여기 id는 토큰에 담긴 Id
     //token변수 선언된 'req.headers.authorization의 id를 가져온다.
-    //토큰 검증 성공 시, 게시물 생성 함수
 
+    */
+
+    //토큰 검증 성공 시, 게시물 생성 함수
     const postId = req.params; // 게시물 번호 postman의 post number로
     //2. 작성한 게시물의 주인이 맞는지 (아무나꺼 건드리면 안 되니) -> if 중복 확인
     // body에서 content를 가져와야 함
@@ -322,6 +329,8 @@ app.delete("/deletepost", async (req, res) => {
 //게시물 수정 Update
 app.put("/updatepost", async (req, res) => {
   try {
+    /*
+
     // 1. 토큰 확인, 검증 (회원인지)
     //* 회원만 게시물 작성 가능 (header에서 '토큰 확인'=req.headers.authorization)
     const token = req.headers.authorization;
@@ -336,8 +345,10 @@ app.put("/updatepost", async (req, res) => {
     const { id } = jwt.verify(token, process.env.TYPEORM_JWT);
     // token 안의 id
     //token변수 선언된 'req.headers.authorization의 id를 가져온다.
-    //토큰 검증 성공 시, 게시물 생성 함수
 
+    */
+
+    //토큰 검증 성공 시, 게시물 생성 함수
     //req.body에서 content를 가져온다
     const content = req.body.content;
     // const {content} = req.body
